@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { api } from '../lib/api';
+import MatchupHeader from '../components/MatchupHeader.jsx';
+import TeamLogo from '../components/TeamLogo.jsx';
 
 const MANUAL_BUTTONS = [
   { key: 'web_gem', label: 'Web Gem', points: 1 },
@@ -60,14 +62,21 @@ export default function Live({ admin, session, rosterPicks, leaderboard, recentE
   const isFinal = session.status === 'final';
   const winner = isFinal && leaderboard.length ? leaderboard[0] : null;
 
+  const teamByPlayerId = useMemo(() => {
+    const m = {};
+    rosterPicks.forEach((p) => { m[p.mlb_player_id] = p.mlb_team_id; });
+    return m;
+  }, [rosterPicks]);
+
   return (
     <div>
-      <div className="card">
-        <div className="row between">
-          <h2>{session.away_team_name} @ {session.home_team_name}</h2>
-          <span className={`status-badge ${isFinal ? 'final' : 'live'}`}>{isFinal ? 'Final' : 'Live'}</span>
-        </div>
-      </div>
+      <MatchupHeader
+        awayTeamId={session.away_team_id}
+        awayName={session.away_team_name}
+        homeTeamId={session.home_team_id}
+        homeName={session.home_team_name}
+        right={<span className={`status-badge ${isFinal ? 'final' : 'live'}`}>{isFinal ? 'Final' : 'Live'}</span>}
+      />
 
       {winner && (
         <div className="turn-banner">
@@ -83,7 +92,14 @@ export default function Live({ admin, session, rosterPicks, leaderboard, recentE
             <span className="rank">{i + 1}</span>
             <div style={{ flex: 1 }}>
               <div className="name">{row.name}</div>
-              <div className="sub">{row.players.map((p) => `${p.name} (${p.points})`).join(' · ')}</div>
+              <div className="sub row" style={{ alignItems: 'center', gap: 6 }}>
+                {row.players.map((p) => (
+                  <span key={p.mlbPlayerId} className="row" style={{ alignItems: 'center', gap: 3 }}>
+                    <TeamLogo teamId={p.teamId} size={14} />
+                    {p.name} ({p.points})
+                  </span>
+                ))}
+              </div>
             </div>
             <span className="total">{row.total}</span>
           </div>
@@ -97,7 +113,10 @@ export default function Live({ admin, session, rosterPicks, leaderboard, recentE
             {rosterPicks.map((p) => (
               <div key={p.id} className="player-row" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
                 <div className="row between">
-                  <span className="name">{p.mlb_player_name}</span>
+                  <span className="name row" style={{ alignItems: 'center', gap: 6 }}>
+                    <TeamLogo teamId={p.mlb_team_id} size={16} />
+                    {p.mlb_player_name}
+                  </span>
                   <button className="btn small" onClick={() => setAdjustFor({ mlbPlayerId: p.mlb_player_id, mlbPlayerName: p.mlb_player_name })}>
                     +/- Adjust
                   </button>
@@ -126,7 +145,10 @@ export default function Live({ admin, session, rosterPicks, leaderboard, recentE
         {recentEvents.map((e) => (
           <div key={e.id} className="event-item">
             <div>
-              <div>{e.mlb_player_name} <span className="tag">{fmtCategory(e.category)}</span></div>
+              <div className="row" style={{ alignItems: 'center', gap: 5 }}>
+                <TeamLogo teamId={teamByPlayerId[e.mlb_player_id]} size={14} />
+                {e.mlb_player_name} <span className="tag">{fmtCategory(e.category)}</span>
+              </div>
               {e.description && <div className="muted">{e.description}</div>}
             </div>
             <div className="row" style={{ alignItems: 'center' }}>

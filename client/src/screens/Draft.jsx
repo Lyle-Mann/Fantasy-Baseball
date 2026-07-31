@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { api } from '../lib/api';
+import MatchupHeader from '../components/MatchupHeader.jsx';
+import TeamLogo from '../components/TeamLogo.jsx';
+import { getTeamBrand } from '../lib/teamBrand';
 
 const COLUMNS = [
   { key: 'obp', label: 'OBP' },
@@ -118,6 +121,13 @@ export default function Draft({ admin, session, humanPlayers, rosterPicks, draft
 
   return (
     <div>
+      <MatchupHeader
+        awayTeamId={session.away_team_id}
+        awayName={session.away_team_name}
+        homeTeamId={session.home_team_id}
+        homeName={session.home_team_name}
+      />
+
       {admin && (
         <div className="card">
           <h2>Human players</h2>
@@ -171,7 +181,10 @@ export default function Draft({ admin, session, humanPlayers, rosterPicks, draft
                 </div>
                 {picks.map((p) => (
                   <div key={p.id} className="row between" style={{ marginTop: 4 }}>
-                    <span className="sub">{p.mlb_player_name}</span>
+                    <span className="sub row" style={{ alignItems: 'center', gap: 6 }}>
+                      <TeamLogo teamId={p.mlb_team_id} size={16} />
+                      {p.mlb_player_name}
+                    </span>
                     {admin && (
                       <div className="row">
                         {showOverride && (
@@ -235,9 +248,24 @@ export default function Draft({ admin, session, humanPlayers, rosterPicks, draft
               </tr>
             </thead>
             <tbody>
-              {available.map((p) => (
+              {available.map((p) => {
+                const brand = getTeamBrand(p.teamId);
+                return (
                 <tr key={p.mlbPlayerId}>
-                  <td>{p.name} <span className="tag">{p.position}</span></td>
+                  <td>
+                    <span
+                      title={brand.name}
+                      style={{
+                        display: 'inline-block',
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        background: brand.primary,
+                        marginRight: 6,
+                      }}
+                    />
+                    {p.name} <span className="tag">{p.position}</span>
+                  </td>
                   <td>{p.stats?.obp ?? '-'}</td>
                   <td>{p.stats?.homeRuns ?? '-'}</td>
                   <td>{p.stats?.avg ?? '-'}</td>
@@ -269,7 +297,8 @@ export default function Draft({ admin, session, humanPlayers, rosterPicks, draft
                     </button>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

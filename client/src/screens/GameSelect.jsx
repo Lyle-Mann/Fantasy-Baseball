@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../lib/api';
+import TeamLogo from '../components/TeamLogo.jsx';
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
@@ -69,7 +70,11 @@ export default function GameSelect({ admin, onChanged }) {
             style={{ opacity: admin ? 1 : 0.7, cursor: admin ? 'pointer' : 'default' }}
           >
             <div>
-              <div style={{ fontWeight: 600 }}>{g.away.name} @ {g.home.name}</div>
+              <div className="game-item-teams" style={{ fontWeight: 600 }}>
+                <TeamLogo teamId={g.away.id} size={22} />
+                <span>{g.away.name} @ {g.home.name}</span>
+                <TeamLogo teamId={g.home.id} size={22} />
+              </div>
               <div className="muted">{g.venue}</div>
             </div>
             <div className="stack" style={{ alignItems: 'flex-end' }}>
