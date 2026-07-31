@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: fantasy-baseball
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: COMMISSIONER_PIN
+        sync: false
+      - key: NODE_VERSION
+        value: 20.18.0
