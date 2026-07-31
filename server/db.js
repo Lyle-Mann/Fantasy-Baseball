@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   home_team_id INTEGER,
   home_team_name TEXT,
   game_date TEXT,
-  status TEXT NOT NULL DEFAULT 'selecting', -- selecting | drafting | live | final
+  status TEXT NOT NULL DEFAULT 'selecting', -- selecting | drafting | live | final | ended
   draft_order_json TEXT,      -- JSON array of human_player ids, snake-expanded pick sequence
   current_pick_index INTEGER DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -55,5 +55,17 @@ CREATE INDEX IF NOT EXISTS idx_score_events_session ON score_events(session_id);
 CREATE INDEX IF NOT EXISTS idx_roster_picks_session ON roster_picks(session_id);
 CREATE INDEX IF NOT EXISTS idx_human_players_session ON human_players(session_id);
 `);
+
+// Lightweight migration for columns added after the first release, so an
+// existing deployed database (with real rows already in it) picks them up
+// without needing a full reset.
+function ensureColumn(table, column, ddl) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name);
+  if (!cols.includes(column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${ddl}`);
+  }
+}
+ensureColumn('sessions', 'draft_mode', "draft_mode TEXT NOT NULL DEFAULT 'both'"); // both | single
+ensureColumn('sessions', 'fan_team_id', 'fan_team_id INTEGER');
 
 module.exports = db;

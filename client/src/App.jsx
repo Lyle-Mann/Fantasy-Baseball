@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { api, loginAdmin, logoutAdmin, isAdmin } from './lib/api';
 import { socket } from './lib/socket';
+import { getTeamBrand } from './lib/teamBrand';
 import GameSelect from './screens/GameSelect.jsx';
 import Draft from './screens/Draft.jsx';
 import Live from './screens/Live.jsx';
@@ -39,7 +40,10 @@ export default function App() {
   }, [refresh]);
 
   useEffect(() => {
-    const onSession = (payload) => setSession(payload.session);
+    // A new/ended session means the previous game's roster & score state is
+    // no longer valid for anyone watching - pull a full fresh snapshot
+    // rather than patching in just the new session row.
+    const onSession = () => refresh();
     const onDraft = (payload) => {
       setSession(payload.session);
       setHumanPlayers(payload.humanPlayers || []);
@@ -58,7 +62,7 @@ export default function App() {
       socket.off('draft:update', onDraft);
       socket.off('score:update', onScore);
     };
-  }, []);
+  }, [refresh]);
 
   async function handleLogin(pin) {
     try {
@@ -75,10 +79,24 @@ export default function App() {
     setAdmin(false);
   }
 
+  async function handleExit() {
+    if (!confirm('End this match for everyone and go back to picking a new game?')) return;
+    try {
+      await api.post('/api/session/end', {});
+      refresh();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  const isFanMode = session && session.status !== 'ended' && session.draft_mode === 'single';
+  const fanBrand = isFanMode ? getTeamBrand(session.fan_team_id) : null;
+  const canExit = session && session.status !== 'ended' && admin;
+
   let screen = null;
   if (loading) {
     screen = <p className="muted">Loading...</p>;
-  } else if (!session || session.status === 'selecting') {
+  } else if (!session || session.status === 'selecting' || session.status === 'ended') {
     screen = <GameSelect admin={admin} onChanged={refresh} />;
   } else if (session.status === 'drafting') {
     screen = (
@@ -106,14 +124,26 @@ export default function App() {
   }
 
   return (
-    <div className="app">
+    <div
+      className={`app ${isFanMode ? 'fan-mode' : ''}`}
+      style={
+        fanBrand
+          ? { '--accent': fanBrand.primary, '--accent-2': fanBrand.secondary }
+          : undefined
+      }
+    >
       <div className="topbar">
         <h1>⚾ Fantasy Watch-Along</h1>
-        {admin ? (
-          <button className="pill admin" onClick={handleLogout}>Commissioner · Log out</button>
-        ) : (
-          <button className="pill" onClick={() => setShowLogin(true)}>🔒 Commissioner</button>
-        )}
+        <div className="row" style={{ gap: 6 }}>
+          {canExit && (
+            <button className="pill exit-pill" onClick={handleExit}>Exit match</button>
+          )}
+          {admin ? (
+            <button className="pill admin" onClick={handleLogout}>Commissioner · Log out</button>
+          ) : (
+            <button className="pill" onClick={() => setShowLogin(true)}>🔒 Commissioner</button>
+          )}
+        </div>
       </div>
 
       {error && <div className="error-banner">{error}</div>}

@@ -185,7 +185,7 @@ table.stat-table th:first-child, table.stat-table td:first-child {
 .player-row .sub { font-size: 12px; color: var(--text-dim); }
 
 .turn-banner {
-  background: linear-gradient(135deg, var(--accent), #2f5fd6);
+  background: linear-gradient(135deg, var(--accent), var(--accent-2, #2f5fd6));
   border-radius: 14px;
   padding: 14px;
   margin-bottom: 12px;
@@ -326,4 +326,66 @@ table.stat-table th:first-child, table.stat-table td:first-child {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.fan-banner {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  padding: 26px 16px 20px;
+  margin-bottom: 12px;
+  text-align: center;
+  border: 2px solid;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+}
+
+.fan-banner.compact { padding: 16px 14px; }
+
+.fan-banner-watermark {
+  position: absolute;
+  top: -30px;
+  right: -36px;
+  width: 170px;
+  height: 170px;
+  opacity: 0.16;
+  transform: rotate(-10deg);
+  pointer-events: none;
+}
+
+.fan-banner-logo {
+  position: relative;
+  display: block;
+  margin: 0 auto;
+  height: 56px;
+  max-width: 82%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.45));
+}
+
+.fan-banner.compact .fan-banner-logo { height: 40px; }
+
+.fan-banner-name {
+  position: relative;
+  margin-top: 10px;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}
+
+.app.fan-mode {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  border-radius: 0 0 16px 16px;
+}
+
+.app.fan-mode .card {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+
+.exit-pill {
+  color: var(--bad);
+  border-color: var(--bad);
 }

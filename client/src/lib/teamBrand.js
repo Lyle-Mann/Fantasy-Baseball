@@ -40,6 +40,9 @@ export function getTeamBrand(teamId) {
   return TEAM_BRAND[teamId] || FALLBACK;
 }
 
-export function getTeamLogoUrl(teamId) {
-  return `https://www.mlbstatic.com/team-logos/${teamId}.svg`;
+// variant: 'main' (cap logo, transparent) | 'team-cap-on-dark' | 'team-primary-on-dark'
+// | 'team-cap-on-light' | 'team-primary-on-light' - all served from MLB's own CDN.
+export function getTeamLogoUrl(teamId, variant = 'main') {
+  if (variant === 'main') return `https://www.mlbstatic.com/team-logos/${teamId}.svg`;
+  return `https://www.mlbstatic.com/team-logos/${variant}/${teamId}.svg`;
 }

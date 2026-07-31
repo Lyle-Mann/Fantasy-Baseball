@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { api } from '../lib/api';
 import MatchupHeader from '../components/MatchupHeader.jsx';
+import FanBanner from '../components/FanBanner.jsx';
 import TeamLogo from '../components/TeamLogo.jsx';
 
 const MANUAL_BUTTONS = [
@@ -68,8 +69,11 @@ export default function Live({ admin, session, rosterPicks, leaderboard, recentE
     return m;
   }, [rosterPicks]);
 
+  const isFanMode = session.draft_mode === 'single';
+
   return (
     <div>
+      {isFanMode && <FanBanner teamId={session.fan_team_id} size="compact" />}
       <MatchupHeader
         awayTeamId={session.away_team_id}
         awayName={session.away_team_name}

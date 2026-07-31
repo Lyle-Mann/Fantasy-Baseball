@@ -40,12 +40,13 @@ function router({ io }) {
     if (!session) return;
     try {
       const season = new Date(session.game_date).getFullYear();
-      const [away, home] = await Promise.all([
-        mlbApi.getTeamHitterPool(session.away_team_id, season),
-        mlbApi.getTeamHitterPool(session.home_team_id, season),
-      ]);
+      const teamIds =
+        session.draft_mode === 'single'
+          ? [session.fan_team_id]
+          : [session.away_team_id, session.home_team_id];
+      const teamPools = await Promise.all(teamIds.map((id) => mlbApi.getTeamHitterPool(id, season)));
       const drafted = state.getDraftedPlayerIds(session.id);
-      const pool = [...away, ...home].map((p) => ({ ...p, drafted: drafted.has(p.mlbPlayerId) }));
+      const pool = teamPools.flat().map((p) => ({ ...p, drafted: drafted.has(p.mlbPlayerId) }));
       res.json({ pool });
     } catch (err) {
       res.status(502).json({ error: err.message });

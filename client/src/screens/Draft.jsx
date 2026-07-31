@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { api } from '../lib/api';
 import MatchupHeader from '../components/MatchupHeader.jsx';
+import FanBanner from '../components/FanBanner.jsx';
 import TeamLogo from '../components/TeamLogo.jsx';
 import { getTeamBrand } from '../lib/teamBrand';
 
@@ -119,14 +120,20 @@ export default function Draft({ admin, session, humanPlayers, rosterPicks, draft
     onChanged();
   }
 
+  const isFanMode = session.draft_mode === 'single';
+
   return (
     <div>
-      <MatchupHeader
-        awayTeamId={session.away_team_id}
-        awayName={session.away_team_name}
-        homeTeamId={session.home_team_id}
-        homeName={session.home_team_name}
-      />
+      {isFanMode ? (
+        <FanBanner teamId={session.fan_team_id} />
+      ) : (
+        <MatchupHeader
+          awayTeamId={session.away_team_id}
+          awayName={session.away_team_name}
+          homeTeamId={session.home_team_id}
+          homeName={session.home_team_name}
+        />
+      )}
 
       {admin && (
         <div className="card">
@@ -220,11 +227,13 @@ export default function Draft({ admin, session, humanPlayers, rosterPicks, draft
           <h2>Available hitters</h2>
         </div>
         <div className="row" style={{ marginBottom: 8 }}>
-          <select value={teamFilter} onChange={(e) => setTeamFilter(e.target.value)}>
-            <option value="all">Both teams</option>
-            <option value={String(session.away_team_id)}>{session.away_team_name}</option>
-            <option value={String(session.home_team_id)}>{session.home_team_name}</option>
-          </select>
+          {!isFanMode && (
+            <select value={teamFilter} onChange={(e) => setTeamFilter(e.target.value)}>
+              <option value="all">Both teams</option>
+              <option value={String(session.away_team_id)}>{session.away_team_name}</option>
+              <option value={String(session.home_team_id)}>{session.home_team_name}</option>
+            </select>
+          )}
           <select value={sortKey} onChange={(e) => setSortKey(e.target.value)}>
             {COLUMNS.map((c) => (
               <option key={c.key} value={c.key}>Sort: {c.label}</option>
