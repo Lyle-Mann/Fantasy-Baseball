@@ -3,5 +3,7 @@ client/dist/
 server/public/
 *.sqlite
 *.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
 .env
 .DS_Store
