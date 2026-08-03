@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { api, loginAdmin, logoutAdmin, isAdmin } from './lib/api';
 import { socket } from './lib/socket';
 import { getTeamBrand } from './lib/teamBrand';
+import chainsightLogo from './assets/chainsight-logo.png';
 import GameSelect from './screens/GameSelect.jsx';
 import Draft from './screens/Draft.jsx';
 import Live from './screens/Live.jsx';
@@ -133,7 +134,10 @@ export default function App() {
       }
     >
       <div className="topbar">
-        <h1>⚾ Pick To Click</h1>
+        <h1 className="row" style={{ alignItems: 'center', gap: 8 }}>
+          <img src={chainsightLogo} alt="" width={22} height={22} />
+          Pick To Click
+        </h1>
         <div className="row" style={{ gap: 6 }}>
           {canExit && (
             <button className="pill exit-pill" onClick={handleExit}>Exit match</button>
