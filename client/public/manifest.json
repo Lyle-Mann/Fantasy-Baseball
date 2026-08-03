@@ -1,6 +1,6 @@
 {
-  "name": "Fantasy Watch-Along",
-  "short_name": "Fantasy MLB",
+  "name": "Pick To Click",
+  "short_name": "Pick To Click",
   "description": "Live fantasy scoring for MLB watch parties",
   "start_url": "/",
   "scope": "/",

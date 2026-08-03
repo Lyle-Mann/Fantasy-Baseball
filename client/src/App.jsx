@@ -133,7 +133,7 @@ export default function App() {
       }
     >
       <div className="topbar">
-        <h1>⚾ Fantasy Watch-Along</h1>
+        <h1>⚾ Pick To Click</h1>
         <div className="row" style={{ gap: 6 }}>
           {canExit && (
             <button className="pill exit-pill" onClick={handleExit}>Exit match</button>
